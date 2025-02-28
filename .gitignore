@@ -1,0 +1,5 @@
+tasks.db
+
+*.o
+tm
+
