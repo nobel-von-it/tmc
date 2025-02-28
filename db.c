@@ -1,8 +1,7 @@
+#include "db.h"
 #include <sqlite3.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "db.h"
 
 void execute_sql(sqlite3 *db, const char *sql) {
     char *err_msg = 0;
