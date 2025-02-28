@@ -73,21 +73,27 @@ void view_tasks(sqlite3 *db) {
         return;
     }
 
-    // check if there are any rows
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         printf("No tasks found.\n");
+        sqlite3_finalize(stmt);
         return;
     }
+
     printf("Tasks:\n");
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
+    do {
         int id = sqlite3_column_int(stmt, 0);
         const char *title = (const char *)sqlite3_column_text(stmt, 1);
         const char *description = (const char *)sqlite3_column_text(stmt, 2);
         const char *status = (const char *)sqlite3_column_text(stmt, 3);
 
-        printf("ID: %d, Title: %s, Description: %s, Status: %s\n", id, title,
-               description, status);
-    }
+        if (description) {
+            printf("ID: %d, Title: %s, Description: %s, Status: %s\n", id,
+                   title, description, status);
+        } else {
+            printf("ID: %d, Title: %s, Status: %s\n", id, title, status);
+        }
+
+    } while (sqlite3_step(stmt) == SQLITE_ROW);
 
     sqlite3_finalize(stmt);
 }
