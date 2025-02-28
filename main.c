@@ -5,7 +5,6 @@
 
 #include "db.h"
 
-
 void print_usage(int argc, char **argv) {
     printf("Usage: %s <command> [arguments]\n", argv[0]);
     printf("  %s add <title> <description>\n", argv[0]);
@@ -35,8 +34,10 @@ int main(int argc, char **argv) {
     create_if_not_exist(db);
 
     if (strcmp(argv[1], "add") == 0) {
-        if (argc < 4) {
-            call_error(db, argc, argv, "missing arguments for 'add' command");
+        if (argc < 3) {
+            call_error(db, argc, argv,
+                       "missing arguments for 'add' command. you need a title "
+                       "and an optional description");
         }
         add_task(db, argv[2], argv[3]);
     } else if (strcmp(argv[1], "delete") == 0) {
@@ -48,8 +49,10 @@ int main(int argc, char **argv) {
             delete_task(db, atoi(argv[i]));
         }
     } else if (strcmp(argv[1], "edit") == 0) {
-        if (argc < 5) {
-            call_error(db, argc, argv, "missing arguments for 'edit' command");
+        if (argc < 4) {
+            call_error(db, argc, argv,
+                       "missing arguments for 'edit' command. you need an id, "
+                       "a title and an optional description");
         }
         edit_task(db, atoi(argv[2]), argv[3], argv[4]);
     } else if (strcmp(argv[1], "view") == 0) {
