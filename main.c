@@ -7,11 +7,13 @@
 
 
 void print_usage(int argc, char **argv) {
-    printf("Usage:\n");
+    printf("Usage: %s <command> [arguments]\n", argv[0]);
     printf("  %s add <title> <description>\n", argv[0]);
     printf("  %s delete <id>\n", argv[0]);
     printf("  %s edit <id> <title> <description>\n", argv[0]);
     printf("  %s view\n", argv[0]);
+
+    printf("\n  you provided %d arguments\n", argc - 1);
 }
 
 void call_error(sqlite3 *db, int argc, char **argv, const char *message) {
