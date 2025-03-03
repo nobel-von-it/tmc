@@ -32,7 +32,6 @@ bool parse_args(int argc, char **argv, Arg *arg) {
     default_arg(arg);
 
     if (argc < 2) {
-        print_usage();
         return false;
     }
 
