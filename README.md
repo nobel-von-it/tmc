@@ -9,10 +9,10 @@ TMC is a task manager in C. It is a simple program that allows you to manage you
 To install TMC, run the following command:
 
 ```bash
-git clone https://github.com/nerd-nerd/tmc.git
+git clone --depth=1 https://github.com/nerd-nerd/tmc.git
 cd tmc
 make
-./tm <what you want>
+./tm
 ```
 
 ## Usage
@@ -22,5 +22,5 @@ Run the program and follow the prompts to add, view, update, mark or delete task
 Run this command for usage information (description is optional):
 
 ```bash
-./tm help
+./tm
 ```
