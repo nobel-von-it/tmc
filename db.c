@@ -28,12 +28,14 @@ void add_task(sqlite3 *db, Arg *arg) {
         snprintf(sql, sizeof(sql),
                  "INSERT INTO tasks (title, description) VALUES ('%s', '%s')",
                  arg->title, arg->description);
-        printf("Added task '%s' with description '%s'\n", arg->title,
-               arg->description);
+        if (arg->verbose)
+            printf("Added task '%s' with description '%s'\n", arg->title,
+                   arg->description);
     } else {
         snprintf(sql, sizeof(sql), "INSERT INTO tasks (title) VALUES ('%s')",
                  arg->title);
-        printf("Added task '%s'\n", arg->title);
+        if (arg->verbose)
+            printf("Added task '%s' in default status 'pending'\n", arg->title);
     }
 
     execute_sql(db, sql);
@@ -44,7 +46,8 @@ void delete_task(sqlite3 *db, Arg *arg) {
     snprintf(sql, sizeof(sql), "DELETE FROM tasks WHERE id = %d", arg->id);
 
     execute_sql(db, sql);
-    printf("Deleted task with ID: %d\n", arg->id);
+    if (arg->verbose)
+        printf("Deleted task with ID: %d\n", arg->id);
 }
 
 void edit_task(sqlite3 *db, Arg *arg) {
@@ -56,10 +59,21 @@ void edit_task(sqlite3 *db, Arg *arg) {
             "UPDATE tasks SET title = '%s', description = '%s' WHERE id = %d",
             arg->title, arg->description, arg->id);
 
+        if (arg->verbose) {
+            printf("Edited task with ID: %d\n", arg->id);
+            printf("Title: %s\n", arg->title);
+            printf("Description: %s\n", arg->description);
+        }
+
     } else {
         snprintf(sql, sizeof(sql),
                  "UPDATE tasks SET title = '%s' WHERE id = %d", arg->title,
                  arg->id);
+
+        if (arg->verbose) {
+            printf("Edited task with ID: %d\n", arg->id);
+            printf("Title: %s\n", arg->title);
+        }
     }
 
     execute_sql(db, sql);
@@ -79,7 +93,8 @@ void mark_task(sqlite3 *db, Arg *arg) {
 
         execute_sql(db, sql);
 
-        printf("Marked task with ID: %d as %s\n", arg->id, arg->status);
+        if (arg->verbose)
+            printf("Marked task with ID: %d as %s\n", arg->id, arg->status);
     }
 }
 
@@ -96,6 +111,7 @@ void view_tasks(sqlite3 *db) {
 
     if (sqlite3_step(stmt) == SQLITE_DONE) {
         printf("No tasks found.\n");
+        printf("Use 'add' command to add a task.\n");
         sqlite3_finalize(stmt);
         return;
     }
