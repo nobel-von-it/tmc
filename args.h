@@ -18,6 +18,7 @@ typedef enum {
     DELETE,
     EDIT,
     VIEW,
+    MARK,
     NONE,
 } Command;
 
@@ -27,6 +28,7 @@ typedef struct {
     char *title;
     char *description;
     char *path;
+    char *status;
     bool verbose;
 } Arg;
 

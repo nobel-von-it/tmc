@@ -23,6 +23,7 @@ void create_if_not_exist(sqlite3 *db);
 void add_task(sqlite3 *db, Arg *arg);
 void delete_task(sqlite3 *db, Arg *arg);
 void edit_task(sqlite3 *db, Arg *arg);
+void mark_task(sqlite3 *db, Arg *arg);
 void view_tasks(sqlite3 *db);
 
 void print_tasks(sqlite3_stmt *stmt);

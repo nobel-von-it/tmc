@@ -1,4 +1,6 @@
 #include "db.h"
+#include <stdio.h>
+#include <string.h>
 
 void execute_sql(sqlite3 *db, const char *sql) {
     char *err_msg = 0;
@@ -11,11 +13,12 @@ void execute_sql(sqlite3 *db, const char *sql) {
 }
 
 void create_if_not_exist(sqlite3 *db) {
-    char *sql = "CREATE TABLE IF NOT EXISTS tasks ( id INTEGER PRIMARY KEY "
-                "AUTOINCREMENT, title TEXT "
-                "NOT NULL, description TEXT, status TEXT DEFAULT 'pending');";
+    const char *sql =
+        "CREATE TABLE IF NOT EXISTS tasks ( id INTEGER PRIMARY KEY "
+        "AUTOINCREMENT, title TEXT "
+        "NOT NULL, description TEXT, status TEXT DEFAULT 'pending');";
 
-    execute_sql(db, (const char *)sql);
+    execute_sql(db, sql);
 }
 
 void add_task(sqlite3 *db, Arg *arg) {
@@ -60,6 +63,24 @@ void edit_task(sqlite3 *db, Arg *arg) {
     }
 
     execute_sql(db, sql);
+}
+
+void mark_task(sqlite3 *db, Arg *arg) {
+    if (strcmp(arg->status, "pending") == 0 ||
+        strcmp(arg->status, "done") == 0 ||
+        strcmp(arg->status, "in_progress") == 0 ||
+        strcmp(arg->status, "failed") == 0 ||
+        strcmp(arg->status, "cancelled") == 0) {
+
+        char sql[256];
+        snprintf(sql, sizeof(sql),
+                 "UPDATE tasks SET status = '%s' WHERE id = %d", arg->status,
+                 arg->id);
+
+        execute_sql(db, sql);
+
+        printf("Marked task with ID: %d as %s\n", arg->id, arg->status);
+    }
 }
 
 void view_tasks(sqlite3 *db) {
@@ -113,6 +134,10 @@ void print_tasks(sqlite3_stmt *stmt) {
             status_color = YELLOW;
         } else if (strcmp(status, "failed") == 0) {
             status_color = RED;
+        } else if (strcmp(status, "cancelled") == 0) {
+            status_color = RED;
+        } else if (strcmp(status, "in_progress") == 0) {
+            status_color = BLUE;
         }
 
         printf("│ %-6d │ %-19.19s │ %-27.27s │ %s%-8s" RESET " │\n", id, title,

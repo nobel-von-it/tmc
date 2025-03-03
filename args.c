@@ -1,4 +1,5 @@
 #include "args.h"
+#include <stdio.h>
 
 void print_usage(void) {
     printf("Usage: ./tm <command> [options]\n");
@@ -6,6 +7,7 @@ void print_usage(void) {
     printf("  add      -t <title> -d <description> [-p <path>] [-v]\n");
     printf("  delete   -i <id> [-p <path>] [-v]\n");
     printf("  edit     -i <id> -t <title> -d <description> [-p <path>] [-v]\n");
+    printf("  mark     -i <id> -s <status> [-p <path>] [-v]\n");
     printf("  view     [-p <path>] [-v]\n");
     printf("Options:\n");
     printf("  -p, --path <path>    Specify storage directory\n");
@@ -43,8 +45,9 @@ bool parse_args(int argc, char **argv, Arg *arg) {
         arg->command = EDIT;
     } else if (strcmp(argv[1], "view") == 0) {
         arg->command = VIEW;
+    } else if (strcmp(argv[1], "mark") == 0) {
+        arg->command = MARK;
     } else {
-        print_usage();
         return false;
     }
 
@@ -67,24 +70,27 @@ bool parse_args(int argc, char **argv, Arg *arg) {
         } else if (strcmp(argv[i], "-v") == 0 ||
                    strcmp(argv[i], "--verbose") == 0) {
             arg->verbose = true;
+        } else if ((strcmp(argv[i], "-s") == 0 ||
+                    strcmp(argv[i], "--status") == 0) &&
+                   i + 1 < argc) {
+            arg->status = argv[++i];
         } else {
             fprintf(stderr, "Unknown argument: %s\n", argv[i]);
-            print_usage();
             return false;
         }
     }
 
     if (arg->command == ADD && arg->title == NULL) {
         fprintf(stderr, "Missing title for 'add' command\n");
-        print_usage();
         return false;
     } else if (arg->command == DELETE && arg->id == -1) {
         fprintf(stderr, "Missing ID for 'delete' command\n");
-        print_usage();
         return false;
     } else if (arg->command == EDIT && (arg->id == -1 || arg->title == NULL)) {
         fprintf(stderr, "Missing ID or title for 'edit' command\n");
-        print_usage();
+        return false;
+    } else if (arg->command == MARK && (arg->id == -1 || arg->status == NULL)) {
+        fprintf(stderr, "Missing ID or status for 'mark' command\n");
         return false;
     }
     // TODO: add path checker

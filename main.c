@@ -30,6 +30,9 @@ int main(int argc, char **argv) {
     case EDIT:
         edit_task(db, &arg);
         break;
+    case MARK:
+        mark_task(db, &arg);
+        break;
     case VIEW:
         view_tasks(db);
         break;
