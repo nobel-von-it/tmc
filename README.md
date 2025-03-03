@@ -12,12 +12,12 @@ To install TMC, run the following command:
 git clone https://github.com/nerd-nerd/tmc.git
 cd tmc
 make
-./tm what you want
+./tm <what you want>
 ```
 
 ## Usage
 
-Run the program and follow the prompts to add, view, update, or delete tasks.
+Run the program and follow the prompts to add, view, update, mark or delete tasks.
 
 Run this command for usage information (description is optional):
 
