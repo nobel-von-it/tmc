@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g
 LDFLAGS = -lsqlite3
 
-SRCS = main.c db.c
+SRCS = main.c db.c args.c
 
 OBJS = $(SRCS:.c=.o)
 

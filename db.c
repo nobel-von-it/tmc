@@ -1,7 +1,4 @@
 #include "db.h"
-#include <sqlite3.h>
-#include <stdio.h>
-#include <string.h>
 
 void execute_sql(sqlite3 *db, const char *sql) {
     char *err_msg = 0;
@@ -21,42 +18,45 @@ void create_if_not_exist(sqlite3 *db) {
     execute_sql(db, (const char *)sql);
 }
 
-void add_task(sqlite3 *db, const char *title, const char *description) {
+void add_task(sqlite3 *db, Arg *arg) {
     char sql[256];
-    if (description && strlen(description) > 0 && strlen(description) < 255) {
+    if (arg->description && strlen(arg->description) > 0 &&
+        strlen(arg->description) < 255) {
         snprintf(sql, sizeof(sql),
                  "INSERT INTO tasks (title, description) VALUES ('%s', '%s')",
-                 title, description);
-        printf("Added task '%s' with description '%s'\n", title, description);
+                 arg->title, arg->description);
+        printf("Added task '%s' with description '%s'\n", arg->title,
+               arg->description);
     } else {
         snprintf(sql, sizeof(sql), "INSERT INTO tasks (title) VALUES ('%s')",
-                 title);
-        printf("Added task '%s'\n", title);
+                 arg->title);
+        printf("Added task '%s'\n", arg->title);
     }
 
     execute_sql(db, sql);
 }
 
-void delete_task(sqlite3 *db, int id) {
+void delete_task(sqlite3 *db, Arg *arg) {
     char sql[256];
-    snprintf(sql, sizeof(sql), "DELETE FROM tasks WHERE id = %d", id);
+    snprintf(sql, sizeof(sql), "DELETE FROM tasks WHERE id = %d", arg->id);
 
     execute_sql(db, sql);
-    printf("Deleted task with ID: %d\n", id);
+    printf("Deleted task with ID: %d\n", arg->id);
 }
 
-void edit_task(sqlite3 *db, int id, const char *title,
-               const char *description) {
+void edit_task(sqlite3 *db, Arg *arg) {
     char sql[256];
-    if (description && strlen(description) > 0 && strlen(description) < 255) {
+    if (arg->description && strlen(arg->description) > 0 &&
+        strlen(arg->description) < 255) {
         snprintf(
             sql, sizeof(sql),
             "UPDATE tasks SET title = '%s', description = '%s' WHERE id = %d",
-            title, description, id);
+            arg->title, arg->description, arg->id);
 
     } else {
         snprintf(sql, sizeof(sql),
-                 "UPDATE tasks SET title = '%s' WHERE id = %d", title, id);
+                 "UPDATE tasks SET title = '%s' WHERE id = %d", arg->title,
+                 arg->id);
     }
 
     execute_sql(db, sql);
@@ -79,21 +79,47 @@ void view_tasks(sqlite3 *db) {
         return;
     }
 
-    printf("Tasks:\n");
+    print_tasks(stmt);
+
+    sqlite3_finalize(stmt);
+}
+
+void print_tasks(sqlite3_stmt *stmt) {
+    printf(CYAN BOLD "┌────────┬─────────────────────┬─────────────────────"
+                     "────────┬──────────┐\n" RESET);
+    printf(CYAN BOLD "│   ID   │        Title        │        Description  "
+                     "        │  Status  │\n" RESET);
+    printf(CYAN BOLD "├────────┼─────────────────────┼─────────────────────"
+                     "────────┼──────────┤\n" RESET);
+
     do {
         int id = sqlite3_column_int(stmt, 0);
         const char *title = (const char *)sqlite3_column_text(stmt, 1);
         const char *description = (const char *)sqlite3_column_text(stmt, 2);
         const char *status = (const char *)sqlite3_column_text(stmt, 3);
 
-        if (description) {
-            printf("ID: %d, Title: %s, Description: %s, Status: %s\n", id,
-                   title, description, status);
-        } else {
-            printf("ID: %d, Title: %s, Status: %s\n", id, title, status);
+        if (!title)
+            title = "";
+        if (!description)
+            description = "";
+        if (!status)
+            status = "unknown";
+
+        // Цвет статуса
+        const char *status_color = RESET;
+        if (strcmp(status, "done") == 0) {
+            status_color = GREEN;
+        } else if (strcmp(status, "pending") == 0) {
+            status_color = YELLOW;
+        } else if (strcmp(status, "failed") == 0) {
+            status_color = RED;
         }
+
+        printf("│ %-6d │ %-19.19s │ %-27.27s │ %s%-8s" RESET " │\n", id, title,
+               description, status_color, status);
 
     } while (sqlite3_step(stmt) == SQLITE_ROW);
 
-    sqlite3_finalize(stmt);
+    printf(CYAN BOLD "└────────┴─────────────────────┴─────────────────────"
+                     "────────┴──────────┘\n" RESET);
 }
